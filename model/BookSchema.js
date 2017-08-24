@@ -14,11 +14,11 @@ let BookSchema = new mongoose.Schema({
     name: { type: String },
     book_id: { type: Number },
     author: { type: String },
-    image: { type: String ,default:''},
-    word_count: { type: Number ,default:0},
+    image: { type: String },
+    word_count: { type: Number },
     type: { type: String },
-    intro: { type: String ,default:''},
-    status: { type: String ,default:''},
+    intro: { type: String },
+    status: { type: String },
     update_time: { type: Number }
 },{ collection: collection,versionKey:false});
 

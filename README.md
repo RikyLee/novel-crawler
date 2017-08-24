@@ -4,9 +4,9 @@
 
 2. 每个分类有热门推荐、更新列表、排行榜
 
-3. 设计五张表分别为 书名表，书名-章节列表，书名-章节-内容表，分类推荐表，分类排行榜表
+3. 设计五张表分别为 书名表，书名-章节列表，书名-章节-内容表
 
-* 书名表结构如下
+* 书名表(book_list)结构如下
 ``` 
 {
     _id:{type:ObjectId},                 //id
@@ -22,13 +22,31 @@
 }
 ```
 
-* 书名-章节列表结构如下
+* 书名-章节列表(book_chapter)结构如下
 
-* 书名-章节-内容表结构如下
+```
+{
+    _id:{type:ObjectId},                 //id
+    book_obj_id:{type:String} ,          //对应mongo中的书本的ObjectId
+    name:{type:String},                  //章节名称
+    chapter_num_ch:{type:String},        //章节序号中文
+    chapter_num:{type:Number},           //章节序号
+    content_url:{type:String},           //对应章节内容获取的url相对地址 使用该地址获取章节内容时需拼接
+    update_time: { type: Number }        //更新时间时间戳
+}
+```
 
-* 分类推荐表结构如下
 
-* 分类排行榜表结构如下
+* 书名-章节-内容表(book_chapter_content)结构如下
+
+```
+{
+    _id:{type:ObjectId},                 //id
+    book_chapter_obj_id:{type:String},   //对应mongo中的书本章节的ObjectId
+    content:{type:String},               //对应章节内容获
+    update_time: { type: Number }        //更新时间时间戳
+}
+```
 
 4. 书名更新规则，各类别页面获取所有小说信息，存入数据库
 
