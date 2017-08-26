@@ -1,4 +1,4 @@
-const mongoose = require('../utils/MongoDBUtil.js');
+const { mongoose } = require('../utils/MongoDBUtil.js');
 
 let collection = 'book_chapter_content';
 

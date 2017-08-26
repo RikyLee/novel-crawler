@@ -32,4 +32,4 @@ db.on('disconnected', function () {
 }); 
 
 
-module.exports = mongoose;
+module.exports = {mongoose,db};
