@@ -4,8 +4,9 @@
   "description": "笔趣阁小说爬虫",
   "main": "app.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "chapter":"node --max-old-space-size=4096 ./job/ChapterJob.js"
+    "book":"node --max-old-space-size=4096 ./job/BookJob.js",
+    "chapter":"node --max-old-space-size=4096 ./job/ChapterJob.js",
+    "content":"node --max-old-space-size=4096 ./job/ContentJob.js"
   },
   "repository": {
     "type": "git",
@@ -13,7 +14,7 @@
   },
   "keywords": [],
   "author": "Riky Li",
-  "license": "ISC",
+  "license": "MIT",
   "bugs": {
     "url": "https://github.com/aiguanglee/novel-crawler/issues"
   },

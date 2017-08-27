@@ -7,7 +7,6 @@ const async = require('async');
 const { db } = require('../utils/MongoDBUtil.js');
 
 const BookSchema = require('../model/BookSchema.js');
-
 const ChapterSchema = require('../model/ChapterSchema.js');
 
 /**
@@ -33,9 +32,9 @@ const novelStatus = context => {
  */
 const updateBook = book => {
 
-    var conditions = { name: book.name, book_id: book.book_id, author: book.author };
-    var update = { $set: { update_time: new Date().getTime(), status: book.status, intro: book.intro, word_count: book.word_count, image: book.image, book_flag: 1 } };
-    var options = { upsert: true };
+    const conditions = { name: book.name, book_id: book.book_id, author: book.author };
+    const update = { $set: { update_time: new Date().getTime(), status: book.status, intro: book.intro, word_count: book.word_count, image: book.image, book_flag: 1 } };
+    const options = { upsert: true };
     BookSchema.update(conditions, update, options, function (error) {
         if (error) {
             console.log(error);
@@ -44,8 +43,10 @@ const updateBook = book => {
 }
 
 
-
-//将Unicode转汉字
+/**
+ * 将Unicode转汉字
+ * @param {*} str 
+ */
 const reconvert = str => {
     str = str.replace(/(&#x)(\w{1,4});/gi, function ($0) {
         return String.fromCharCode(parseInt(escape($0).replace(/(%26%23x)(\w{1,4})(%3B)/g, "$2"), 16));
@@ -53,6 +54,10 @@ const reconvert = str => {
     return str
 }
 
+/**
+ * trim字符串
+ * @param {*} str 
+ */
 const trim = str => {
     return str.replace(/(^\s*)|(\s*$)/g, '').replace(/&nbsp;/g, '')
 }
@@ -124,8 +129,8 @@ const fetchBookChapter = (book, callback) => {
  */
 const saveBookChapterToMongo = (item, index, book_obj_id, book_id) => {
 
-    var conditions = { name: item.name, book_id: book_id, book_obj_id: book_obj_id };
-    var update = {
+    const conditions = { name: item.name, book_id: book_id, book_obj_id: book_obj_id };
+    const update = {
         $set: {
             book_obj_id: book_obj_id,
             book_id: book_id,
@@ -137,7 +142,7 @@ const saveBookChapterToMongo = (item, index, book_obj_id, book_id) => {
             update_time: new Date().getTime()
         }
     };
-    var options = { upsert: true };
+    const options = { upsert: true };
 
     ChapterSchema.update(conditions, update, options, function (error) {
         if (error) {
@@ -179,23 +184,30 @@ const findLatestChapter = (book_obj_id, book_id, chapter_list) => {
     });
 }
 
-
+/**
+ * 任务队列，每次同步最大执行数量为2
+ */
 const query = async.queue((book, callback) => {
     fetchBookChapter(book, callback);
 }, 2);
 
 // assign a callback
+/**
+ * 所有队列执行完成之后输出的信息
+ */
 query.drain = function () {
     console.log('all items have been processed');
     //db.close();
 };
 
-
+/**
+ * 查找所有小说
+ */
 const findAllBook = () => {
 
-    var criteria = { "status": { $ne: "完结" } }; // 查询条件
-    var fields = {}; // 待返回的字段，默认返回所有 如需返回指定字段如 name:1 返回name字段
-    var options = {}; //分页条件 排序等等
+    const criteria = { "status": { $ne: "完结" } }; // 查询条件
+    const fields = {}; // 待返回的字段，默认返回所有 如需返回指定字段如 name:1 返回name字段
+    const options = {}; //分页条件 排序等等
 
     BookSchema.find(criteria, fields, options, function (error, result) {
         if (error) {

@@ -2,15 +2,27 @@ const cheerio = require('cheerio');
 const superagent = require('superagent');
 require('superagent-charset')(superagent);
 
-const BiQiGeUtil = require('./utils/BiQiGeUtil.js')
+const BiQiGeUtil = require('../utils/BiQiGeUtil.js')
 const async = require('async');
-const BookSchema = require('./model/BookSchema.js');
+const BookSchema = require('../model/BookSchema.js');
+
+const query = async.queue((type, callback) => {
+    fetchBook(type, callback);
+}, 2);
+
+// assign a callback
+query.drain = function () {
+    console.log('all items have been processed');
+    //db.close();
+};
 
 /**
  * type 抓取小说类型名称以及url
  * 
  */
 const fetchBook = (type, callback) => {
+
+    console.log('fetch:'+type.url);
     //superagent 获取网页内容 编码格式为gbk
     let book_list = [];
     superagent.get(type.url).charset('gbk').end((err, res) => {
@@ -69,43 +81,47 @@ const fetchBook = (type, callback) => {
     })
 }
 
-// const bookType = type => {
-//     if (type.indexOf('连载') !== -1) {
-//         return '连载';
-//     } else if (type.indexOf('完本') !== -1) {
-//         return '完本';
-//     }
-// }
 
 
-const saveBookToMongo = book_list => {
-    book_list.map((item, index) => {
-        const book = new BookSchema({
-            name: item.name,
-            book_id: item.book_id,
-            author: item.author,
-            type: item.type,
-            update_time: item.update_time
+const saveBookToMongo = item => {
+    
+        const conditions = { name: item.name, author: item.author,book_id:item.book_id };
+        const update = {
+            $set: {
+                name: item.name,
+                author: item.author,
+                book_id: item.book_id,
+                type:item.type,
+                update_time: item.update_time
+            }
+        };
+        const options = { upsert: true };
+        BookSchema.update(conditions, update, options, function (error) {
+            if (error) {
+                console.log(error);
+            }else{
+                console.log('save '+item.name);
+            }  
         });
-        book.save();
+    
+    }
+
+
+
+const saveBookList = book_list => {
+    book_list.map((item, index) => {
+        saveBookToMongo(item);
     })
     console.log(book_list.length, 'finsh save');
 }
 
 
 
-
-
-const BookList = () => {
-    async.mapLimit(BiQiGeUtil.TypeList, 5, (type, callback) => {
-        fetchBook(type, callback);
-    }, (err, res) => {
-        if (!err) {
-
-            let book_list = [];
-            res.map(item => {
-                book_list = [...book_list, ...item];
-            })
+const BookQuery = ()=>{
+    query.push(BiQiGeUtil.TypeList,(err,res)=>{
+        if(!err){
+            console.log("query done");
+            let book_list = res;
             console.log("去重之前:" + book_list.length);
             var hash = {};
             book_list = book_list.reduce(function (item, next) {
@@ -113,35 +129,14 @@ const BookList = () => {
                 return item
             }, [])
             console.log("去重之后:" + book_list.length);
-            //response.send(book_list);
-            saveBookToMongo(book_list);
+            saveBookList(book_list);
+        }else{
+            console.log(err);
         }
     })
-
 }
 
-// app.get("/", (req, response) => {
-//     async.mapLimit(BiQiGeUtil.TypeList, 5, (type, callback) => {
-//         fetchBook(type, callback);
-//     }, (err, res) => {
-//         if (!err) {
 
-//             let book_list = [];
-//             res.map(item => {
-//                 book_list = [...book_list, ...item];
-//             })
-//             var hash = {};
-//             book_list = book_list.reduce(function (item, next) {
-//                 hash[next.name] ? '' : hash[next.name] = true && item.push(next);
-//                 return item
-//             }, [])
+BookQuery();
 
-//             response.send(book_list);
-//             //saveBookToMongo(book_list);
-//         }
-//     })
-
-// })
-
-
-module.exports = BookList;
+//module.exports = BookList;

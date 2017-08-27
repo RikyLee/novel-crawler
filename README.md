@@ -4,7 +4,7 @@
 
 2. 每个分类有热门推荐、更新列表、排行榜
 
-3. 设计五张表分别为 书名表，书名-章节列表，书名-章节-内容表
+3. 设计三张表分别为 书名表，书名-章节列表，书名-章节-内容表
 
 * 书名表(book_list)结构如下
 ``` 
@@ -45,7 +45,8 @@
 ```
 {
     _id:{type:ObjectId},                 //id
-    book_chapter_obj_id:{type:String},   //对应mongo中的书本章节的ObjectId
+    chapter_obj_id:{type:String},        //对应mongo中的书本章节的ObjectId
+    chapter_name:{type:String},          //章节名称 
     content:{type:String},               //对应章节内容获
     update_time: { type: Number }        //更新时间时间戳
 }
@@ -53,7 +54,7 @@
 
 4. 书名更新规则，各类别页面获取所有小说信息，存入数据库
 
-5. 章节更新规则，根据书名ID获取所有章节列表逆序反向遍历，与数据库中最新更新的章节名称对比，存在则退出遍历，反之抓取相应章节内容，并存入数据库
+5. 章节更新规则，根据书名ID获取所有章节列表，与数据库中最新更新的章节对比，存在则退出遍历，存入数据库
 
 6. 数据库使用mongDB，爬虫语言使用nodeJS
 
